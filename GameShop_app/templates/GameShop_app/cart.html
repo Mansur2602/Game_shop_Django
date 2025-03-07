@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Главная страница</title>
+    <title>Корзина</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
 
+    <!-- Навигационная панель -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
             <a class="navbar-brand" href="#">GameStore</a>
@@ -39,54 +40,38 @@
                     </li>
                 </ul>
             </div>
-        </div>  
+        </div>
     </nav>
 
     <div class="container mt-5">
-        <h1 class="text-center mb-5">Список видеоигр</h1>
+        <h1 class="text-center mb-5">Ваша корзина</h1>
 
-        <div class="row">
-            {% for game in page.object_list %}
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <img src="{{ game.image.url }}" class="card-img-top" alt="{{ game.title }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ game.title }}</h5>
-                        <p><strong>Цена:</strong> {{ game.price }} тг</p>
-                        <p><strong>Описание:</strong> {{ game.description}}</p>
-
-                        <form method="POST" action="{% url 'add_to_cart' %}" onsubmit="showAlert('{{ game.title }}')">
-                            {% csrf_token %}
-                            <input type="hidden" name="game_id" value="{{ game.id }}">
-                            <button type="submit" class="btn btn-primary">Добавить в корзину</button>
-                        </form>
+        {% if cart_items %}
+            <div class="row">
+                {% for item in cart_items %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <img src="{{ item.game.image.url }}" class="card-img-top" alt="{{ item.game.title }}">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ item.game.title }}</h5>
+                                <p><strong>Цена:</strong> {{ item.game.price }} тг</p>
+                                <p><strong>Количество:</strong> {{ item.quantity }}</p>
+                                <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger">Удалить</a>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
 
-        <div class="mt-4">
-            <div class="d-flex justify-content-center">
-                {% if page.has_previous %}
-                    <a class="btn btn-secondary" href="?page={{ page.previous_page_number }}">« Назад</a>
-                {% endif %}
-
-                <span class="mx-2">Страница {{ page.number }} из {{ page.paginator.num_pages }}</span>
-
-                {% if page.has_next %}
-                    <a class="btn btn-secondary" href="?page={{ page.next_page_number }}">Вперед »</a>
-                {% endif %}
+            <div class="text-end mt-4">
+                <h3>Итоговая сумма: {{ total_sum }} тг</h3>
+                <a href="#" class="btn btn-success">Оформить заказ</a>
             </div>
-        </div>
+
+        {% else %}
+            <p class="text-center">Ваша корзина пуста. Добавьте товары в корзину!</p>
+        {% endif %}
     </div>
-
- 
-    <script type="text/javascript">
-        function showAlert(gameTitle) {
-            alert(gameTitle + " добавлена в корзину!");
-        }
-    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0pZ9f5eFJkaZ9MQfZ9sBoVwBCjTx9s3DzB26Jj4cdCXhZ5K9" crossorigin="anonymous"></script>
 </body>

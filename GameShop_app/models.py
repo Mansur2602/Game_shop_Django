@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Genre(models.Model):
     name = models.CharField(max_length=200, verbose_name='Название жанра')
@@ -23,3 +24,23 @@ class Videogame(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cart', verbose_name='Пользователь')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания корзины')
+    active = models.BooleanField(default=True)
+    def __str__(self):
+        return f"Корзина пользователя {self.user.username} ({self.created_at})"
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE, verbose_name='Корзина')
+    game = models.ForeignKey(Videogame, on_delete=models.CASCADE, verbose_name='Игра')
+    quantity = models.PositiveIntegerField(default=1, verbose_name='Количество')
+    
+    def __str__(self):
+        return f"{self.game.title} x{self.quantity} в корзине {self.cart.user.username}"
+
+    def get_total_price(self):
+        return self.game.price * self.quantity
