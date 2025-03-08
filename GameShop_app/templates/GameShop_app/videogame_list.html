@@ -39,6 +39,10 @@
                     </li>
                 </ul>
             </div>
+            <form class="d-flex ms-auto" method="get" action="{% url 'videogame_list' %}">
+                <input class="form-control me-2" type="search" name="search" placeholder="Поиск" aria-label="Search" value="{{ query }}">
+                <button class="btn btn-outline-success" type="submit">Поиск</button>
+            </form>
         </div>  
     </nav>
 

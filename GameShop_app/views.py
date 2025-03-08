@@ -7,11 +7,18 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 def videogame_list(request):
-    game_list = Videogame.objects.all()  
-    paginator = Paginator(game_list, 6) 
+    query = request.GET.get('search', '')  
+    game_list = Videogame.objects.all() 
+
+    if query:  #Функционал поиска
+        game_list = game_list.filter(title__icontains=query)
+
+    paginator = Paginator(game_list, 6)  
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
-    return render(request, 'GameShop_app/videogame_list.html', {'page': page})
+    
+    return render(request, 'GameShop_app/videogame_list.html', {'page': page, 'query': query})
+
 
 
 def register(request):
@@ -103,3 +110,4 @@ def remove_from_cart(request, item_id):
         messages.error(request, "Товар не найден в вашей корзине или уже был удален.")
     
     return redirect('cart_view')
+
