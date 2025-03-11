@@ -1,10 +1,13 @@
 from django.shortcuts import render, redirect
-from .models import Videogame, Cart, CartItem, Videogame
+from .models import Videogame, Cart, CartItem, Videogame, Purchase, PurchaseSerializer
 from django.core.paginator import Paginator, Page
 from django.contrib.auth import login,  authenticate, logout
 from .forms import RegistrationForm, LoginForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
 
 def videogame_list(request):
     query = request.GET.get('search', '')  
@@ -94,6 +97,19 @@ def cart_view(request):
     cart_items = CartItem.objects.filter(cart=cart) if cart else []
     total_sum = sum(item.game.price * item.quantity for item in cart_items)
 
+    if request.method == "POST":
+        print("wwwqwew")
+
+        qweqw = 123123
+        if qweqw != None:
+            print("wwww")
+            items = CartItem.objects.filter(cart=cart).all()
+            for item in items:
+                Purchase.objects.create(user=request.user, game = item.game)
+                print(item.game.title)
+                item.delete()
+                
+
     return render(request, 'GameShop_app/cart.html', {
         'cart_items': cart_items,
         'total_sum': total_sum
@@ -111,3 +127,9 @@ def remove_from_cart(request, item_id):
     
     return redirect('cart_view')
 
+
+class PurchaseListView(APIView):
+    def get(self, request):
+        purchases = Purchase.objects.all()  
+        serializer = PurchaseSerializer(purchases, many=True) 
+        return Response(serializer.data)

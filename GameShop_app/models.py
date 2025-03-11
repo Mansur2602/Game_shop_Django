@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from rest_framework import serializers
 class Genre(models.Model):
     name = models.CharField(max_length=200, verbose_name='Название жанра')
 
@@ -35,6 +35,7 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE, verbose_name='Корзина')
     game = models.ForeignKey(Videogame, on_delete=models.CASCADE, verbose_name='Игра')
     quantity = models.PositiveIntegerField(default=1, verbose_name='Количество')
@@ -44,3 +45,21 @@ class CartItem(models.Model):
 
     def get_total_price(self):
         return self.game.price * self.quantity
+    
+    # def get_(self):
+    #     t={"user":self.user.first_name,
+    #        'game': self.game.title}
+    #     return t
+
+class Purchase(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    game = models.ForeignKey(Videogame,on_delete=models.CASCADE )
+
+
+class PurchaseSerializer(serializers.ModelSerializer):
+    user_full_name = serializers.CharField(source='user.username', read_only=True)
+    game_title = serializers.CharField(source='game.title', read_only=True)
+
+    class Meta:
+        model = Purchase
+        fields = ['user_full_name', 'game_title']
