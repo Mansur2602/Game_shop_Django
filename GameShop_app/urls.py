@@ -10,7 +10,7 @@ urlpatterns = [
     path('cart/', cart_view, name='cart_view' ),
     path('add_to_cart/',add_to_cart, name='add_to_cart'),
     path('remove_from_cart/<int:item_id>/',remove_from_cart, name='remove_from_cart'),
-    path('api_purchases/', PurchaseListView.as_view(), name='purchase-list')
+    path('api_purchases/', PurchaseListView.as_view(), name='api_purchases')
     
 ]
 if settings.DEBUG: 

@@ -37,6 +37,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'cart_view' %}">Корзина</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'api_purchases' %}">Список купленных игр</a>
+                    </li>
                 </ul>
             </div>
             <form class="d-flex ms-auto" method="get" action="{% url 'videogame_list' %}">
@@ -49,17 +52,23 @@
     <div class="container mt-5">
         <h1 class="text-center mb-5">Список видеоигр</h1>
 
+        {% if no_results %}
+        <div class="alert alert-warning" role="alert">
+            Товары по вашему запросу не найдены.
+        </div>
+        {% endif %}
         <div class="row">
             {% for game in page.object_list %}
             <div class="col-md-4 mb-4">
                 <div class="card">
                     <img src="{{ game.image.url }}" class="card-img-top" alt="{{ game.title }}">
                     <div class="card-body">
-                        <h5 class="card-title">{{ game.title }}</h5>
+                        <h5 class="card-title">{{ game.title  }}</h5>
                         <p><strong>Цена:</strong> {{ game.price }} тг</p>
                         <p><strong>Описание:</strong> {{ game.description}}</p>
 
-                        <form method="POST" action="{% url 'add_to_cart' %}" onsubmit="showAlert('{{ game.title }}')">
+
+                        <form class="add-to-cart-form" method="POST" action="{% url 'add_to_cart' %}" onsubmit="return handleFormSubmit(event, '{{ game.title }}')">
                             {% csrf_token %}
                             <input type="hidden" name="game_id" value="{{ game.id }}">
                             <button type="submit" class="btn btn-primary">Добавить в корзину</button>
@@ -85,15 +94,37 @@
         </div>
     </div>
 
- 
-    <script type="text/javascript">
-        function showAlert(gameTitle) {
-            alert(gameTitle + " добавлена в корзину!");
+    <script>
+        function handleFormSubmit(event, gameTitle) {
+            event.preventDefault()
+
+            var form = event.target;  
+            var formData = new FormData(form);  
+
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest', 
+                }
+            })
+            .then(response => response.json())  
+            .then(data => {
+                
+                alert(gameTitle + " добавлена в корзину!");
+            })
+            .catch(error => {
+                console.error("Ошибка при отправке данных:", error);
+                alert(gameTitle + " добавлена в корзину!");
+            });
         }
+   
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0pZ9f5eFJkaZ9MQfZ9sBoVwBCjTx9s3DzB26Jj4cdCXhZ5K9" crossorigin="anonymous"></script>
 </body>
 </html>
+
+
 
 

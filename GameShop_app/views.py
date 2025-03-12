@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.http import JsonResponse
 
 
 def videogame_list(request):
@@ -19,8 +20,9 @@ def videogame_list(request):
     paginator = Paginator(game_list, 6)  
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
+    no_results = not game_list.exists() 
     
-    return render(request, 'GameShop_app/videogame_list.html', {'page': page, 'query': query})
+    return render(request, 'GameShop_app/videogame_list.html', {'page': page, 'query': query, 'no_results': no_results  })
 
 
 
@@ -30,7 +32,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('home')
+            return redirect('videogame_list')
         else:
             messages.error(request, 'Пожалуйста, заполните все поля корректно.')
     else:
@@ -130,6 +132,6 @@ def remove_from_cart(request, item_id):
 
 class PurchaseListView(APIView):
     def get(self, request):
-        purchases = Purchase.objects.all()  
+        purchases = Purchase.objects.filter(user = request.user) 
         serializer = PurchaseSerializer(purchases, many=True) 
-        return Response(serializer.data)
+        return JsonResponse(serializer.data, safe=False)
