@@ -34,9 +34,11 @@
                         <a class="nav-link" href="{% url 'register' %}">Регистрация</a>
                     </li>
                     {% endif %}
+                    {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'cart_view' %}">Корзина</a>
                     </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'api_purchases' %}">Список купленных игр</a>
                     </li>
@@ -67,12 +69,13 @@
                         <p><strong>Цена:</strong> {{ game.price }} тг</p>
                         <p><strong>Описание:</strong> {{ game.description}}</p>
 
-
+                        {% if user.is_authenticated %}
                         <form class="add-to-cart-form" method="POST" action="{% url 'add_to_cart' %}" onsubmit="return handleFormSubmit(event, '{{ game.title }}')">
                             {% csrf_token %}
                             <input type="hidden" name="game_id" value="{{ game.id }}">
                             <button type="submit" class="btn btn-primary">Добавить в корзину</button>
                         </form>
+                        {% endif %}
                     </div>
                 </div>
             </div>
